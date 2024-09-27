@@ -1,13 +1,36 @@
 package recover_linter
 
 import (
+	"github.com/golangci/plugin-module-register/register"
 	"github.com/tulzke/recover-linter/internal"
 	"golang.org/x/tools/go/analysis"
 )
 
+const linterName = "recoverlint"
+
+func init() {
+	register.Plugin(linterName, NewPlugin)
+}
+
+func NewPlugin(_ any) (register.LinterPlugin, error) {
+	return Plugin{}, nil
+}
+
+type Plugin struct{}
+
+func (Plugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
+	return []*analysis.Analyzer{
+		NewAnalyzer(),
+	}, nil
+}
+
+func (Plugin) GetLoadMode() string {
+	return register.LoadModeTypesInfo
+}
+
 func NewAnalyzer() *analysis.Analyzer {
 	return &analysis.Analyzer{
-		Name: "recoverlint",
+		Name: linterName,
 		Doc:  "A linter that checks for recover in goroutines",
 		Run:  run,
 	}
